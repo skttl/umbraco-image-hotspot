@@ -87,5 +87,6 @@ Contributions to this package are most welcome! Please read the [Contributing Gu
 
 ## Acknowledgments
 
-- [Chriztian Steinmeier](https://github.com/greystate) for [Vokseverk.ImageHotspot](https://marketplace.umbraco.com/package/vokseverk.imagehotspot) which this editor is based on.
-- [Lotte Pitcher](https://github.com/LottePitcher) for the [opinionated package starter template for Umbraco](https://github.com/LottePitcher/opinionated-package-starter).
+- [Chriztian Steinmeier](https://github.com/greystate) for [Vokseverk.ImageHotspot](https://marketplace.umbraco.com/package/vokseverk.imagehotspot) which this editor is based on
+- [Lotte Pitcher](https://github.com/LottePitcher) for the [opinionated package starter template for Umbraco](https://github.com/LottePitcher/opinionated-package-starter)
+- [creative outlet](https://thenounproject.com/creator/creativeoutlet/) for the [icon](https://thenounproject.com/icon/cross-hair-1641709/)
