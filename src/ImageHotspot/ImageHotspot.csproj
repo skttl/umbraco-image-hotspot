@@ -15,7 +15,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/skttl/umbraco-image-hotspot</PackageProjectUrl>
     <RepositoryUrl>https://github.com/skttl/umbraco-image-hotspot</RepositoryUrl>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <PackageTags>umbraco umbraco-marketplace</PackageTags>
   </PropertyGroup>
   
