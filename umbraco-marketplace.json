@@ -1,0 +1,31 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Name": "Søren Kottal",
+    "ImageUrl": "https://github.com/skttl.png",
+    "Contributors": [
+      {
+        "Name": "Chriztian Steinmeier",
+        "Url": "https://greystate.dk/who/"
+      }
+    ],
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Editor Tools",
+  "Screenshots": [
+    {
+      "ImageUrl": "https://github.com/skttl/umbraco-image-hotspot/blob/develop/docs/screenshots/editor.png",
+      "Caption": "Property editor"
+    },
+    {
+      "ImageUrl": "https://github.com/skttl/umbraco-image-hotspot/blob/develop/docs/screenshots/configuration.png",
+      "Caption": "Data type configuration"
+    }
+
+  ],
+  "LicenseTypes": [ "Free" ],
+  "IssueTrackerUrl": "https://github.com/skttl/umbraco-image-hotspot/issues",
+  "PackageType": "Package",
+  "Tags": [],
+  "Title": "Image Hotspot Editor (v15+)"
+}
