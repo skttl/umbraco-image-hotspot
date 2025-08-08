@@ -14,7 +14,7 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
     private readonly JsonSerializerOptions _options = new()
     {
         PropertyNameCaseInsensitive = true,
-        Converters = { new FlexibleDecimalConverter() },
+        Converters = { new FlexibleDecimalConverter(), new FlexibleIntConverter() },
     };
 
     public ImageHotspotPropertyConverter(ILogger<ImageHotspotPropertyConverter> logger)
@@ -112,6 +112,39 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
             decimal value,
             JsonSerializerOptions options
         )
+        {
+            writer.WriteNumberValue(value);
+        }
+    }
+
+    /// <summary>
+    /// Used to deserialize the JSON string into a int, for backwards compatibility
+    /// </summary>
+    private class FlexibleIntConverter : JsonConverter<int>
+    {
+        public override int Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
+        {
+            if (
+                reader.TokenType == JsonTokenType.String
+                && int.TryParse(reader.GetString(), out var i)
+            )
+            {
+                return i;
+            }
+
+            if (reader.TokenType == JsonTokenType.Number && reader.TryGetInt32(out i))
+            {
+                return i;
+            }
+
+            return 0; // or throw
+        }
+
+        public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
         {
             writer.WriteNumberValue(value);
         }
