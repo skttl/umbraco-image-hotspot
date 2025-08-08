@@ -8,7 +8,8 @@ namespace ImageHotspot;
 
 public class ImageHotspotPropertyConverter : IPropertyValueConverter
 {
-    public bool IsConverter(IPublishedPropertyType propertyType) => propertyType.EditorUiAlias == "ImageHotspot.PropertyEditorUi";
+    public bool IsConverter(IPublishedPropertyType propertyType) =>
+        propertyType.EditorUiAlias == "ImageHotspot.PropertyEditorUi";
 
     public Type GetPropertyValueType(IPublishedPropertyType propertyType)
     {
@@ -31,13 +32,21 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
         }
     }
 
-    public object? ConvertSourceToIntermediate(IPublishedElement owner, IPublishedPropertyType propertyType, object? source, bool preview)
+    public object? ConvertSourceToIntermediate(
+        IPublishedElement owner,
+        IPublishedPropertyType propertyType,
+        object? source,
+        bool preview
+    )
     {
         if (source?.ToString() is var sourceString && sourceString.IsNullOrWhiteSpace() == false)
         {
             try
             {
-                return JsonSerializer.Deserialize<ImageHotspotValue>(sourceString);
+                return JsonSerializer.Deserialize<ImageHotspotValue>(
+                    sourceString,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
             }
             catch (Exception)
             {
@@ -48,7 +57,13 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
         return null;
     }
 
-    public object? ConvertIntermediateToObject(IPublishedElement owner, IPublishedPropertyType propertyType, PropertyCacheLevel referenceCacheLevel, object? inter, bool preview)
+    public object? ConvertIntermediateToObject(
+        IPublishedElement owner,
+        IPublishedPropertyType propertyType,
+        PropertyCacheLevel referenceCacheLevel,
+        object? inter,
+        bool preview
+    )
     {
         return inter;
     }
