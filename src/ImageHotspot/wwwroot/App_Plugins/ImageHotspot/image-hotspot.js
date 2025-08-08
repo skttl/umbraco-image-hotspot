@@ -4,7 +4,7 @@ const e = [
     alias: "ImageHotspot.PropertyEditorUi",
     type: "propertyEditorUi",
     elementName: "image-hotspot",
-    js: () => import("./imagehotspot.element-BwGSLmNw.js"),
+    js: () => import("./imagehotspot.element-vfS-1zos.js"),
     meta: {
       group: "common",
       icon: "icon-locate",

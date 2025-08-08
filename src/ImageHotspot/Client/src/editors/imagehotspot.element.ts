@@ -9,6 +9,7 @@ import { UmbDocumentItemRepository } from "@umbraco-cms/backoffice/document";
 import { UmbMediaDetailRepository } from "@umbraco-cms/backoffice/media";
 import { UmbEntityUnique } from "@umbraco-cms/backoffice/entity";
 import { UmbElementDetailModel } from "@umbraco-cms/backoffice/content";
+import { UmbImagingRepository } from "@umbraco-cms/backoffice/imaging";
 
 @customElement("image-hotspot")
 export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiElement {
@@ -54,6 +55,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
   #documentDetailRepository = new UmbDocumentDetailRepository(this);
   #documentItemRepository = new UmbDocumentItemRepository(this);
   #mediaDetailRepository = new UmbMediaDetailRepository(this);
+  #imagingRepository = new UmbImagingRepository(this);
 
   #onClick(event: MouseEvent) {
     this.#setPosition(event.offsetX, event.offsetY);
@@ -95,11 +97,16 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
         let firstImageValue = imageValue[0];
 
         const media = await this.#mediaDetailRepository.requestByUnique(firstImageValue?.mediaKey);
-        this._imgSrc = media?.data?.urls[0].url;
-        const mediaWidth = this.#getPropertyValue("umbracoWidth", media?.data) || 0;
-        const mediaHeight = this.#getPropertyValue("umbracoHeight", media?.data) || 0;
-        this._imgWidth = this._config.getValueByAlias("width") || 400;
-        this._imgHeight = this._imgWidth * mediaHeight / mediaWidth;
+
+        if (media?.data) {
+          const mediaWidth = this.#getPropertyValue("umbracoWidth", media.data) || 0;
+          const mediaHeight = this.#getPropertyValue("umbracoHeight", media.data) || 0;
+          this._imgWidth = this._config.getValueByAlias("width") || 400;
+          this._imgHeight = this._imgWidth * mediaHeight / mediaWidth;
+
+
+          this._imgSrc = (await this.#imagingRepository.requestThumbnailUrls([media.data.unique], this._imgHeight, this._imgWidth)).data?.[0]?.url;
+        }
       }
 
       const theme = this._config.getValueByAlias("theme") || "Red";
