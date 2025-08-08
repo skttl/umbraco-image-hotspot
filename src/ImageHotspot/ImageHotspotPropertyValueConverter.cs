@@ -1,5 +1,7 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ImageHotspot.Models;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Extensions;
@@ -8,6 +10,18 @@ namespace ImageHotspot;
 
 public class ImageHotspotPropertyConverter : IPropertyValueConverter
 {
+    private readonly ILogger<ImageHotspotPropertyConverter> _logger;
+    private readonly JsonSerializerOptions _options = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new FlexibleDecimalConverter() },
+    };
+
+    public ImageHotspotPropertyConverter(ILogger<ImageHotspotPropertyConverter> logger)
+    {
+        _logger = logger;
+    }
+
     public bool IsConverter(IPublishedPropertyType propertyType) =>
         propertyType.EditorUiAlias == "ImageHotspot.PropertyEditorUi";
 
@@ -43,13 +57,11 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
         {
             try
             {
-                return JsonSerializer.Deserialize<ImageHotspotValue>(
-                    sourceString,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                );
+                return JsonSerializer.Deserialize<ImageHotspotValue>(sourceString, _options);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning("Failed deserializing ImageHotSpotValue, {ex}", ex.Message);
                 return null;
             }
         }
@@ -66,5 +78,42 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
     )
     {
         return inter;
+    }
+
+    /// <summary>
+    /// Used to deserialize the JSON string into a decimal, for backwards compatibility
+    /// </summary>
+    private class FlexibleDecimalConverter : JsonConverter<decimal>
+    {
+        public override decimal Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
+        {
+            if (
+                reader.TokenType == JsonTokenType.String
+                && decimal.TryParse(reader.GetString(), out var i)
+            )
+            {
+                return i;
+            }
+
+            if (reader.TokenType == JsonTokenType.Number && reader.TryGetDecimal(out i))
+            {
+                return i;
+            }
+
+            return 0; // or throw
+        }
+
+        public override void Write(
+            Utf8JsonWriter writer,
+            decimal value,
+            JsonSerializerOptions options
+        )
+        {
+            writer.WriteNumberValue(value);
+        }
     }
 }
