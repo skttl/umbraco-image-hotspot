@@ -14,11 +14,11 @@
   "Category": "Editor Tools",
   "Screenshots": [
     {
-      "ImageUrl": "https://github.com/skttl/umbraco-image-hotspot/blob/develop/docs/screenshots/editor.png",
+      "ImageUrl": "https://raw.githubusercontent.com/skttl/umbraco-image-hotspot/refs/heads/main/docs/screenshots/editor.png",
       "Caption": "Property editor"
     },
     {
-      "ImageUrl": "https://github.com/skttl/umbraco-image-hotspot/blob/develop/docs/screenshots/configuration.png",
+      "ImageUrl": "https://raw.githubusercontent.com/skttl/umbraco-image-hotspot/refs/heads/main/docs/screenshots/configuration.png",
       "Caption": "Data type configuration"
     }
 
