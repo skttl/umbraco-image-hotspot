@@ -1,7 +1,10 @@
 {
   "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "Title": "Image Hotspot Editor",
+  "Description": "A property editor for Umbraco v15+ that lets content editors place a single hotspot on an image. Stores percentage coordinates and converts them to a ready-made CSS snippet via a strongly-typed C# value object. Works inside Block List and Block Grid elements through recursive image resolution.",
   "AuthorDetails": {
     "Name": "Søren Kottal",
+    "Url": "https://github.com/skttl",
     "ImageUrl": "https://github.com/skttl.png",
     "Contributors": [
       {
@@ -21,11 +24,11 @@
       "ImageUrl": "https://raw.githubusercontent.com/skttl/umbraco-image-hotspot/refs/heads/main/docs/screenshots/configuration.png",
       "Caption": "Data type configuration"
     }
-
   ],
   "LicenseTypes": [ "Free" ],
-  "IssueTrackerUrl": "https://github.com/skttl/umbraco-image-hotspot/issues",
   "PackageType": "Package",
-  "Tags": [],
-  "Title": "Image Hotspot Editor"
+  "IssueTrackerUrl": "https://github.com/skttl/umbraco-image-hotspot/issues",
+  "DocumentationUrl": "https://github.com/skttl/umbraco-image-hotspot#readme",
+  "Tags": [ "property editor", "image", "hotspot", "media" ],
+  "LookingForContributors": true
 }
