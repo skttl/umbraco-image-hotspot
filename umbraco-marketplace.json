@@ -30,5 +30,5 @@
   "IssueTrackerUrl": "https://github.com/skttl/umbraco-image-hotspot/issues",
   "DocumentationUrl": "https://github.com/skttl/umbraco-image-hotspot#readme",
   "Tags": [ "property editor", "image", "hotspot", "media" ],
-  "LookingForContributors": true
+  "LookingForContributors": false
 }
