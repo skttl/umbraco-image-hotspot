@@ -4,15 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "watch": "tsc && vite build --watch",
-    "build": "tsc && vite build"
+    "build": "vite build --config vite.config.js",
+    "watch": "vite build --config vite.config.js --watch",
+    "dev": "vite build --config vite.config.js --watch",
+    "check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@umbraco-cms/backoffice": "^*",
-    "chalk": "^5.4.1",
-    "cross-env": "^7.0.3",
-    "node-fetch": "^3.3.2",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.0"
+    "@types/node": "^22.15.29",
+    "@umbraco-cms/backoffice": "^17.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
   }
 }

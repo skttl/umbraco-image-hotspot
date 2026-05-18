@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
@@ -9,7 +9,7 @@
   <PropertyGroup>
     <PackageId>Umbraco.Community.ImageHotspot</PackageId>
     <Product>Umbraco.Community.ImageHotspot</Product>
-    <Title>ImageHotspot for Umbraco v15+</Title>
+    <Title>Umbraco Image Hotspot</Title>
     <Authors>Søren Kottal</Authors>
     <Copyright>Søren Kottal</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -18,7 +18,7 @@
     <PackageIcon>logo.png</PackageIcon>
     <PackageTags>umbraco umbraco-marketplace</PackageTags>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <None Include="..\..\docs\logo.png">
       <Pack>True</Pack>
@@ -38,7 +38,7 @@
 
     <!-- Dont include the client folder as part of packaging nuget build -->
     <Content Remove="Client\**" />
-    
+
   </ItemGroup>
 
   <ItemGroup>

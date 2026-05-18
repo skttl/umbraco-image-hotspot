@@ -22,8 +22,8 @@ public class ImageHotspotManifestReader : IPackageManifestReader
                 {
                     new
                     {
-                        Name = "Image Hotspot Bundle",
-                        Alias = "ImageHotspot.Bundle",
+                        Name = "Image Hot Spot",
+                        Alias = "Umbraco.Community.ImageHotSpot",
                         Type = "bundle",
                         Js = "/App_Plugins/ImageHotspot/image-hotspot.js"
                     }
