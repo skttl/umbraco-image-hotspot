@@ -53,13 +53,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
 
   @property({ attribute: false })
   value: ImageHotspotValue = {
-    image: null,
-    width: null,
-    height: null,
     percentX: null,
     percentY: null,
-    left: null,
-    top: null,
   };
 
   #propertyDatasetContext?: typeof UMB_PROPERTY_DATASET_CONTEXT.TYPE;
@@ -148,15 +143,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
   }
 
   #setPosition(percentX: number, percentY: number) {
-    this.value = {
-      percentX,
-      percentY,
-      left: Math.round((percentX / 100) * this._imgWidth),
-      top: Math.round((percentY / 100) * this._imgHeight),
-      width: this._imgWidth,
-      height: this._imgHeight,
-      image: this._imgSrc
-    };
+    if (this.value.percentX === percentX && this.value.percentY === percentY) return;
+    this.value = { percentX, percentY };
     this.dispatchEvent(new UmbPropertyValueChangeEvent());
     this.requestUpdate();
   }
@@ -276,18 +264,6 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
         debug['requestResizedItemsReturnedData'] = (result.data?.length ?? 0) > 0;
         this._imgSrc = result.data?.[0]?.url;
         debug['resolvedImgSrc'] = this._imgSrc ?? null;
-
-        if (this._imgSrc && this.value?.percentX != null && this.value?.percentY != null) {
-          this.value = {
-            ...this.value,
-            image: this._imgSrc,
-            width: this._imgWidth,
-            height: this._imgHeight,
-            left: Math.round((this.value.percentX / 100) * this._imgWidth),
-            top: Math.round((this.value.percentY / 100) * this._imgHeight),
-          };
-          this.dispatchEvent(new UmbPropertyValueChangeEvent());
-        }
       }
     }
 
@@ -333,7 +309,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
         <uui-box class="imagehotspot-editor theme${this._imgTheme}" style="--placeholder-width-num:${this._imgWidth};--placeholder-height-num:${this._imgHeight}">
           <div class="imagehotspot-image" @click="${this.#onClick}">
             <img src="${this._imgSrc}" width="${this._imgWidth || 0}" height="${this._imgHeight || 0}" />
-            ${this.value?.left && this.value?.top
+            ${this.value?.percentX != null && this.value?.percentY != null
           ? html`
                 <div id="imagehotspot-hotspot" class="imagehotspot-hotspot" draggable="true" @dragend="${this.#onDragEnd}" style="left:${(this.value.percentX ?? 0).toFixed(4)}%;top:${(this.value.percentY ?? 0).toFixed(4)}%;"></div>
               `

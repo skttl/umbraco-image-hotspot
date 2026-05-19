@@ -2,6 +2,18 @@
 
 All notable changes to Umbraco.Community.ImageHotspot are documented in this file.
 
+
+## [17.0.6] - 2026-05-19
+
+### Changed
+
+- Stored property value now contains only `percentX` and `percentY`; obsolete fields (`image`, `left`, `top`, `width`, `height`) are no longer written by the editor
+- Existing content with the old value shape continues to deserialize correctly in C# (extra fields are ignored)
+
+### Fixed
+
+- Fixed opening a node with an existing hotspot value triggering the "unsaved changes" dialog immediately; `#loadImage` no longer mutates the stored value or dispatches `UmbPropertyValueChangeEvent` — it only updates internal display state (`_imgSrc`, `_imgWidth`, `_imgHeight`)
+
 ## [17.0.5] - 2026-05-19
 
 ### Fixed

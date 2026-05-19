@@ -149,4 +149,5 @@ public class ImageHotspotPropertyConverter : IPropertyValueConverter
             writer.WriteNumberValue(value);
         }
     }
+
 }
