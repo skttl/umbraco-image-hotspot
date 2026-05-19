@@ -2,6 +2,32 @@
 
 All notable changes to Umbraco.Community.ImageHotspot are documented in this file.
 
+## [17.0.3] - 2026-05-19
+
+### Changed
+
+- Updated documentation to reflect simplified `ImageHotspotValue` model
+- Added package readme (`docs/README_nuget.md`) referenced from the `.csproj`
+
+### Fixed
+
+- Fixed null handling when observing workspace property value (`_UNOBSERVED` sentinel now correctly propagated)
+- Fixed stored position hint displaying rounded integer percentages instead of decimal values
+- Removed premature early-exit guard that blocked image loading before contexts were resolved
+- Deprecated unused `ImageHotspotValue` properties (`Left`, `Top`, `Width`, `Height`, `Image`) with `[Obsolete]` attribute
+
+## [17.0.2] - 2026-05-19
+
+### Changed
+
+- GitHub Actions release workflows now build the client before packaging
+
+## [17.0.1] - 2026-05-19
+
+### Changed
+
+- Removed `contributes` entry from `umbraco-marketplace.json`
+
 ## [17.0.0] - 2026-05-18
 
 ### Added
