@@ -130,8 +130,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
 
   #onClick(event: MouseEvent) {
     const target = event.currentTarget as HTMLElement;
-    const percentX = event.offsetX / target.clientWidth;
-    const percentY = event.offsetY / target.clientHeight;
+    const percentX = (event.offsetX / target.clientWidth) * 100;
+    const percentY = (event.offsetY / target.clientHeight) * 100;
     this.#setPosition(percentX, percentY);
   }
 
@@ -141,8 +141,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
       const deltaX = event.offsetX - (target.clientWidth / 2);
       const deltaY = event.offsetY - (target.clientHeight / 2);
       const container = target.closest('.imagehotspot-image') as HTMLElement;
-      const percentX = this.value.percentX + deltaX / (container?.clientWidth ?? this._imgWidth);
-      const percentY = this.value.percentY + deltaY / (container?.clientHeight ?? this._imgHeight);
+      const percentX = this.value.percentX + (deltaX / (container?.clientWidth ?? this._imgWidth)) * 100;
+      const percentY = this.value.percentY + (deltaY / (container?.clientHeight ?? this._imgHeight)) * 100;
       this.#setPosition(percentX, percentY);
     }
   }
@@ -151,8 +151,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
     this.value = {
       percentX,
       percentY,
-      left: Math.round(percentX * this._imgWidth),
-      top: Math.round(percentY * this._imgHeight),
+      left: Math.round((percentX / 100) * this._imgWidth),
+      top: Math.round((percentY / 100) * this._imgHeight),
       width: this._imgWidth,
       height: this._imgHeight,
       image: this._imgSrc
@@ -283,8 +283,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
             image: this._imgSrc,
             width: this._imgWidth,
             height: this._imgHeight,
-            left: Math.round(this.value.percentX * this._imgWidth),
-            top: Math.round(this.value.percentY * this._imgHeight),
+            left: Math.round((this.value.percentX / 100) * this._imgWidth),
+            top: Math.round((this.value.percentY / 100) * this._imgHeight),
           };
           this.dispatchEvent(new UmbPropertyValueChangeEvent());
         }
@@ -335,7 +335,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
             <img src="${this._imgSrc}" width="${this._imgWidth || 0}" height="${this._imgHeight || 0}" />
             ${this.value?.left && this.value?.top
           ? html`
-                <div id="imagehotspot-hotspot" class="imagehotspot-hotspot" draggable="true" @dragend="${this.#onDragEnd}" style="left:${((this.value.percentX ?? 0) * 100).toFixed(4)}%;top:${((this.value.percentY ?? 0) * 100).toFixed(4)}%;"></div>
+                <div id="imagehotspot-hotspot" class="imagehotspot-hotspot" draggable="true" @dragend="${this.#onDragEnd}" style="left:${(this.value.percentX ?? 0).toFixed(4)}%;top:${(this.value.percentY ?? 0).toFixed(4)}%;"></div>
               `
           : html`
                 <div class="imagehotspot-instruction">

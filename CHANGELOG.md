@@ -2,6 +2,12 @@
 
 All notable changes to Umbraco.Community.ImageHotspot are documented in this file.
 
+## [17.0.5] - 2026-05-19
+
+### Fixed
+
+- Fixed `percentX`/`percentY` being stored as a 0–1 ratio instead of 0–100 percentage values, restoring compatibility with the legacy value format
+
 ## [17.0.4] - 2026-05-19
 
 ### Fixed
