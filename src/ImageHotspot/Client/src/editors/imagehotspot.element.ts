@@ -117,7 +117,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
       if (workspaceObservable) {
         this.observe(workspaceObservable, (v) => {
           if (!this.#datasetContextOwnsProperty) {
-            this.#loadImage(v != null ? v as Array<any> : null);
+            this.#loadImage(v != null ? v as Array<any> : _UNOBSERVED);
           }
         }, 'imageWorkspaceObserver');
       }
@@ -185,7 +185,6 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
 
   async #loadImage(observedValue: Array<any> | null | typeof _UNOBSERVED = _UNOBSERVED) {
     if (!this._config) return;
-    if (!this.#propertyDatasetContext && !this.#documentWorkspaceContext) return;
 
     const generation = ++this.#loadGeneration;
     const debug: Record<string, string | number | boolean | null | undefined> = {};
@@ -354,7 +353,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
           <umb-localize key="imageHotspot_warningBody" .args=${[this._debugInfo['configuredAlias']]}></umb-localize>
           ${this.value?.percentX != null && this.value?.percentY != null ? html`
             <p class="stored-value-hint">
-              <umb-localize key="imageHotspot_storedPosition" .args=${[Math.round(this.value.percentX * 100), Math.round(this.value.percentY * 100)]}></umb-localize>
+              <umb-localize key="imageHotspot_storedPosition" .args=${[String(Math.round(this.value.percentX * 100) / 100), String(Math.round(this.value.percentY * 100) / 100)]}></umb-localize>
             </p>
           ` : ''}
           <details>
