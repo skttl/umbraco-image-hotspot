@@ -17,12 +17,18 @@
     <RepositoryUrl>https://github.com/skttl/umbraco-image-hotspot</RepositoryUrl>
     <PackageIcon>logo.png</PackageIcon>
     <PackageTags>umbraco umbraco-marketplace</PackageTags>
+    <Description>A property editor for Umbraco v15+ that lets content editors place a single hotspot on an image. The hotspot position is stored as percentage coordinates and ships with a strongly-typed C# value object that renders a ready-made CSS snippet.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\docs\logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\docs\README_nuget.md">
+      <Pack>True</Pack>
+      <PackagePath>README.md</PackagePath>
     </None>
   </ItemGroup>
 

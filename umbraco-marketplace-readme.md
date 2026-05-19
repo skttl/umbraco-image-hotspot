@@ -1,6 +1,6 @@
 # Image Hotspot Editor
 
-A property editor for **Umbraco v15+** that lets content editors place a single hotspot on an image. The hotspot position is stored as both absolute pixel coordinates and percentage values, and ships with a strongly-typed C# value object that renders a ready-made CSS snippet.
+A property editor for **Umbraco v15+** that lets content editors place a single hotspot on an image. The hotspot position is stored as percentage values, and ships with a strongly-typed C# value object that renders a ready-made CSS snippet.
 
 This package provides the same functionality that was previously available via [Vokseverk.ImageHotspot](https://marketplace.umbraco.com/package/vokseverk.imagehotspot) in Umbraco 7–13.
 
@@ -34,13 +34,8 @@ The included property value converter produces a strongly-typed `ImageHotspotVal
 ```csharp
 public class ImageHotspotValue
 {
-    public decimal Left { get; set; }      // absolute pixel X at save time
-    public decimal Top { get; set; }       // absolute pixel Y at save time
     public decimal PercentX { get; set; }  // X as a percentage (0–100)
     public decimal PercentY { get; set; }  // Y as a percentage (0–100)
-    public int Width { get; set; }         // image display width at save time
-    public int Height { get; set; }        // image display height at save time
-    public string? Image { get; set; }     // media URL
 }
 ```
 
@@ -51,12 +46,13 @@ public class ImageHotspotValue
 ```razor
 @{
     var hotspot = Model.Hotspot; // property alias "hotspot"
+    var image = Model.Image;     // IPublishedContent — property alias "image"
 }
 
-@if (hotspot != null)
+@if (hotspot != null && image != null)
 {
     <div style="position:relative; display:inline-flex;">
-        <img src="@hotspot.Image" width="@hotspot.Width" height="@hotspot.Height" alt="" />
+        <img src="@image.Url()" alt="" />
         <span style="
             position: absolute;
             width: 12px;

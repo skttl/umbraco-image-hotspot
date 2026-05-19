@@ -46,13 +46,8 @@ The included `ImageHotspotPropertyConverter` runs automatically and converts the
 ```csharp
 public class ImageHotspotValue
 {
-    public decimal Left { get; set; }      // absolute pixel X at save time
-    public decimal Top { get; set; }       // absolute pixel Y at save time
-    public decimal PercentX { get; set; }  // X as a fraction (0–1)
-    public decimal PercentY { get; set; }  // Y as a fraction (0–1)
-    public int Width { get; set; }         // image display width at save time
-    public int Height { get; set; }        // image display height at save time
-    public string? Image { get; set; }     // media URL
+    public decimal PercentX { get; set; }  // X as a percentage (0–100)
+    public decimal PercentY { get; set; }  // Y as a percentage (0–100)
 }
 ```
 
@@ -63,12 +58,13 @@ public class ImageHotspotValue
 ```razor
 @{
     var hotspot = Model.Hotspot; // ImageHotspotValue — property alias "hotspot"
+    var image = Model.Image;     // IPublishedContent — property alias "image"
 }
 
-@if (hotspot != null)
+@if (hotspot != null && image != null)
 {
     <div style="position:relative; display:inline-flex;">
-        <img src="@hotspot.Image" width="@hotspot.Width" height="@hotspot.Height" alt="" />
+        <img src="@image.Url()" alt="" />
         <span style="
             position: absolute;
             width: 12px;

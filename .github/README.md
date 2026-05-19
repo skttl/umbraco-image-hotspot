@@ -48,13 +48,8 @@ The included `ImageHotspotPropertyConverter` runs automatically and converts the
 ```csharp
 public class ImageHotspotValue
 {
-    public decimal Left { get; set; }      // absolute pixel X at save time
-    public decimal Top { get; set; }       // absolute pixel Y at save time
-    public decimal PercentX { get; set; }  // X as a fraction (0–1)
-    public decimal PercentY { get; set; }  // Y as a fraction (0–1)
-    public int Width { get; set; }         // image display width at save time
-    public int Height { get; set; }        // image display height at save time
-    public string? Image { get; set; }     // media URL
+    public decimal PercentX { get; set; }  // X as a percentage (0–100)
+    public decimal PercentY { get; set; }  // Y as a percentage (0–100)
 }
 ```
 
@@ -67,12 +62,13 @@ Access the value through your ModelsBuilder model and render the image with the 
 ```razor
 @{
     var hotspot = Model.Hotspot; // ImageHotspotValue — property alias "hotspot"
+    var image = Model.Image;     // IPublishedContent — property alias "image"
 }
 
-@if (hotspot != null)
+@if (hotspot != null && image != null)
 {
     <div style="position:relative; display:inline-flex;">
-        <img src="@hotspot.Image" width="@hotspot.Width" height="@hotspot.Height" alt="" />
+        <img src="@image.Url()" alt="" />
         <span style="
             position: absolute;
             width: 12px;
@@ -96,9 +92,9 @@ If you need the values for another purpose (e.g. a focal-point crop API):
 var hotspot = Model.Value<ImageHotspotValue>("hotspot");
 if (hotspot != null)
 {
-    // Use percentage coordinates (0–1 range)
-    double x = (double)hotspot.PercentX; // e.g. 0.5575
-    double y = (double)hotspot.PercentY; // e.g. 0.7488
+    // Use percentage coordinates (0–100 range)
+    double x = (double)hotspot.PercentX; // e.g. 55.75
+    double y = (double)hotspot.PercentY; // e.g. 74.88
 }
 ```
 
@@ -108,13 +104,8 @@ The stored JSON (before conversion) looks like this:
 
 ```json
 {
-    "image": "/media/1492/what-a-nice-picture.jpg",
-    "left": 223,
-    "top": 307,
     "percentX": 55.75,
-    "percentY": 74.878048780487804878,
-    "width": 400,
-    "height": 410
+    "percentY": 74.878048780487804878
 }
 ```
 
