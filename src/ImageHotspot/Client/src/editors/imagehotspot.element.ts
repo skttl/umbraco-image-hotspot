@@ -335,7 +335,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
             <img src="${this._imgSrc}" width="${this._imgWidth || 0}" height="${this._imgHeight || 0}" />
             ${this.value?.left && this.value?.top
           ? html`
-                <div id="imagehotspot-hotspot" class="imagehotspot-hotspot" draggable="true" @dragend="${this.#onDragEnd}" style="left:${(this.value.percentX ?? 0) * 100}%;top:${(this.value.percentY ?? 0) * 100}%;"></div>
+                <div id="imagehotspot-hotspot" class="imagehotspot-hotspot" draggable="true" @dragend="${this.#onDragEnd}" style="left:${((this.value.percentX ?? 0) * 100).toFixed(4)}%;top:${((this.value.percentY ?? 0) * 100).toFixed(4)}%;"></div>
               `
           : html`
                 <div class="imagehotspot-instruction">

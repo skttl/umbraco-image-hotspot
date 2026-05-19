@@ -2,6 +2,13 @@
 
 All notable changes to Umbraco.Community.ImageHotspot are documented in this file.
 
+## [17.0.4] - 2026-05-19
+
+### Fixed
+
+- Fixed hotspot CSS positioning producing invalid values in locales that use comma as decimal separator (e.g. Danish) by using `toFixed(4)` for `left`/`top` style values
+- Added cache-busting version query string to bundle JS path in `ImageHotspotManifestReader`
+
 ## [17.0.3] - 2026-05-19
 
 ### Changed
