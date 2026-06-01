@@ -3,7 +3,7 @@ name: Release Preview Package
 on:
   push:
     branches:
-      - preview
+      - "v[0-9]*/preview"
 
 jobs:
   release:
@@ -27,8 +27,26 @@ jobs:
         MAJOR=$(echo "$LATEST" | cut -d. -f1)
         MINOR=$(echo "$LATEST" | cut -d. -f2)
         PATCH=$(echo "$LATEST" | cut -d. -f3)
-        BASE_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+
+        # Check for optional bump level marker in [Unreleased] section
+        BUMP=$(awk "/^## \[Unreleased\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md | grep -o '<!-- bump: \(minor\|major\) -->' | sed 's/<!-- bump: \(.*\) -->/\1/')
+        if [ "$BUMP" = "major" ]; then
+          BASE_VERSION="$((MAJOR + 1)).0.0"
+        elif [ "$BUMP" = "minor" ]; then
+          BASE_VERSION="$MAJOR.$((MINOR + 1)).0"
+        else
+          BASE_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+        fi
         DATE=$(date +%Y-%m-%d)
+
+        # Enforce branch major matches computed version major
+        BRANCH="${GITHUB_REF#refs/heads/}"
+        BRANCH_MAJOR=$(echo "$BRANCH" | sed -n 's|^v\([0-9]\+\)/preview$|\1|p')
+        NEW_MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+        if [ "$NEW_MAJOR" != "$BRANCH_MAJOR" ]; then
+          echo "::error::Version major ($NEW_MAJOR) does not match branch major ($BRANCH_MAJOR). Add <!-- bump: major --> to [Unreleased] or check you are on the correct branch."
+          exit 1
+        fi
 
         # Find the next preview suffix (preview001, preview002, ...)
         EXISTING=$(git tag --list "${BASE_VERSION}-preview*" | sort | tail -1)
@@ -73,6 +91,8 @@ jobs:
             sed -i "0,/^## \[/{s/^## \[/$HEADER\n\n## [/}" CHANGELOG.md
           fi
         else
+          # [Unreleased] has content — strip bump marker, stamp version, prepend fresh [Unreleased]
+          sed -i '/<!-- bump: \(minor\|major\) -->/d' CHANGELOG.md
           sed -i "s/^## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
           sed -i "s/^## \[$VERSION\]/## [Unreleased]\n\n## [$VERSION]/" CHANGELOG.md
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
@@ -93,7 +113,7 @@ jobs:
         git add CHANGELOG.md
         git commit -m "Release $VERSION"
         git tag "$VERSION"
-        git push origin preview --tags
+        git push origin HEAD:${GITHUB_REF#refs/heads/} --tags
 
     - name: Setup .NET
       if: steps.prepare.outputs.should_release == 'true'

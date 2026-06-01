@@ -109,6 +109,53 @@ The stored JSON (before conversion) looks like this:
 }
 ```
 
+## Release flow
+
+Releases are fully automated on every push to a versioned branch (`v{N}/main`). The pipeline:
+
+1. Checks `CHANGELOG.md` for an `## [Unreleased]` section with content. If the section is empty or absent, it falls back to commit messages that touched `src/ImageHotspot/` since the last release tag. If neither source yields any changes, the run is a no-op.
+2. Patch-bumps the latest released version (e.g. `17.0.7` → `17.0.8`).
+3. Stamps the changelog entry with the new version and today's date, then prepends a fresh `## [Unreleased]` section ready for the next batch of changes.
+4. Commits the updated changelog, creates a git tag, and pushes both back to the triggering branch.
+5. Builds and type-checks the client, runs C# unit tests, packs the NuGet package, and pushes it to NuGet.org.
+6. Creates a GitHub Release with the changelog notes for that version.
+
+### Preview releases
+
+Pushes to `v{N}/preview` follow the same flow but produce prerelease versions (e.g. `17.0.8-preview001`, auto-incrementing on each push) and are marked as prereleases on GitHub and NuGet.
+
+### Branch naming
+
+All release branches must follow the `v{N}/main` or `v{N}/preview` pattern (e.g. `v17/main`, `v18/preview`). Plain `main` and `preview` branches do **not** trigger a release.
+
+The pipeline always enforces that the computed version's major number matches `{N}`. If they differ the workflow fails with a clear error. To cut a new major version, add `<!-- bump: major -->` to `[Unreleased]` so the computed version aligns with the branch name.
+
+### Changelog conventions
+
+Add new changes under the `## [Unreleased]` heading at the top of `CHANGELOG.md`. The pipeline handles versioning and dating automatically — you never need to edit version numbers or dates by hand.
+
+By default the pipeline performs a **patch bump** (e.g. `17.0.7` → `17.0.8`). To release a minor or major version, add a marker comment anywhere inside the `## [Unreleased]` section:
+
+```markdown
+## [Unreleased]
+
+<!-- bump: minor -->
+
+### Added
+- New feature
+```
+
+```markdown
+## [Unreleased]
+
+<!-- bump: major -->
+
+### Changed
+- Breaking change
+```
+
+The marker is stripped from the changelog automatically before the release commit is pushed. Omitting it is equivalent to `<!-- bump: patch -->`.
+
 ## Contributing
 
 Contributions to this package are most welcome! Please read the [Contributing Guidelines](CONTRIBUTING.md).
