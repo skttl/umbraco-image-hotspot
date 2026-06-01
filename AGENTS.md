@@ -155,6 +155,64 @@ The element tries to find the media picker value in this order:
 
 ---
 
+## Testing
+
+**After every code change, run the relevant tests to verify no regressions were introduced.**
+
+### C# unit tests
+
+```pwsh
+# From repo root
+dotnet test src/ImageHotspot.Tests/ImageHotspot.Tests.csproj
+```
+
+Run these after any change to:
+- `src/ImageHotspot/Models/ImageHotspotValue.cs`
+- `src/ImageHotspot/ImageHotspotComposer.cs` or any C# file under `src/ImageHotspot/`
+
+### TypeScript type-check
+
+```pwsh
+# From repo root
+cd src/ImageHotspot/Client
+npm run check    # tsc --noEmit
+```
+
+Run this after any change to TypeScript files under `src/ImageHotspot/Client/src/`.
+
+### E2E tests (Playwright)
+
+```pwsh
+# Requires the test site to be running (see "Running the test site")
+cd src/ImageHotspot/Client
+npm run test:e2e
+```
+
+Run these after any change that affects the rendered backoffice editor behaviour.
+
+### TDD workflow
+
+Use red-green-refactor for all new behaviour — one vertical slice at a time:
+
+1. **RED** — write one failing test that describes the desired behaviour via the public interface.
+2. **GREEN** — write the minimal code that makes that test pass.
+3. **REFACTOR** — clean up duplication or structure; run tests after each step.
+4. Repeat for the next behaviour.
+
+Rules:
+- Never write all tests up front then all implementation ("horizontal slicing").
+- Tests must verify observable behaviour, not implementation details or private members.
+- A test that breaks only when you rename an internal function is a bad test — delete or rewrite it.
+- Never refactor while RED; get to GREEN first.
+
+### General rule
+
+- Run **C# unit tests** + **TypeScript type-check** for every change, regardless of scope.
+- Run **E2E tests** when changing `imagehotspot.element.ts` or any editor/manifest file.
+- Do not mark a task complete if any test fails — fix the failure first.
+
+---
+
 ## Contributing
 
 See `.github/CONTRIBUTING.md`. Use the test site (`ImageHotspot.TestSite`) for manual verification. The test site is pre-configured for unattended install so it is ready to use after the first `dotnet run`.

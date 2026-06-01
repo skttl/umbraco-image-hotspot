@@ -27,9 +27,20 @@ jobs:
       with:
         node-version: lts/*
 
-    - name: Build client
-      run: npm ci && npm run build
+    - name: Install client dependencies
+      run: npm ci
       working-directory: src/ImageHotspot/Client
+
+    - name: Type-check client
+      run: npm run check
+      working-directory: src/ImageHotspot/Client
+
+    - name: Build client
+      run: npm run build
+      working-directory: src/ImageHotspot/Client
+
+    - name: Run C# unit tests
+      run: dotnet test src\ImageHotspot.Tests\ImageHotspot.Tests.csproj -c Release
 
     - name: Build & Pack
       run: dotnet pack src\ImageHotspot\ImageHotspot.csproj -c Release /p:Version=${{github.ref_name}}

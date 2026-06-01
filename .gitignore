@@ -355,3 +355,9 @@ MigrationBackup/
 # Rider
 src/.idea
 src/ImageHotspot/wwwroot/App_Plugins
+
+# Playwright E2E
+src/ImageHotspot/Client/tests/e2e/.auth/
+src/ImageHotspot/Client/playwright-report/
+src/ImageHotspot/Client/test-results/
+src/ImageHotspot/Client/.env

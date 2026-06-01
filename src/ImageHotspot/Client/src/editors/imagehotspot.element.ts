@@ -1,6 +1,6 @@
 import { customElement, html, css, property, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import { UmbPropertyValueChangeEvent } from "@umbraco-cms/backoffice/property-editor";
+import { UmbChangeEvent } from "@umbraco-cms/backoffice/event";
 import type { ImageHotspotValue } from "../types/imagehotspotvalue";
 import type { UmbPropertyEditorConfigCollection, UmbPropertyEditorUiElement } from '@umbraco-cms/backoffice/property-editor';
 import { UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
@@ -131,21 +131,21 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
   }
 
   #onDragEnd(event: DragEvent) {
-    if (event.dataTransfer && this.value.percentX != null && this.value.percentY != null) {
+    if (event.dataTransfer && this.value?.percentX != null && this.value?.percentY != null) {
       const target = event.target as HTMLElement;
       const deltaX = event.offsetX - (target.clientWidth / 2);
       const deltaY = event.offsetY - (target.clientHeight / 2);
       const container = target.closest('.imagehotspot-image') as HTMLElement;
-      const percentX = this.value.percentX + (deltaX / (container?.clientWidth ?? this._imgWidth)) * 100;
-      const percentY = this.value.percentY + (deltaY / (container?.clientHeight ?? this._imgHeight)) * 100;
+      const percentX = this.value!.percentX! + (deltaX / (container?.clientWidth ?? this._imgWidth)) * 100;
+      const percentY = this.value!.percentY! + (deltaY / (container?.clientHeight ?? this._imgHeight)) * 100;
       this.#setPosition(percentX, percentY);
     }
   }
 
   #setPosition(percentX: number, percentY: number) {
-    if (this.value.percentX === percentX && this.value.percentY === percentY) return;
+    if (this.value?.percentX === percentX && this.value?.percentY === percentY) return;
     this.value = { percentX, percentY };
-    this.dispatchEvent(new UmbPropertyValueChangeEvent());
+    this.dispatchEvent(new UmbChangeEvent());
     this.requestUpdate();
   }
 
@@ -237,7 +237,8 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
       debug['valueFromWorkspaceContext'] = imageValue ? JSON.stringify(imageValue) : null;
 
       if (!imageValue) {
-        imageValue = await this.#getValueFromUnique(this.#documentWorkspaceContext.getUnique(), imagePropertyAlias);
+        const startUnique = this.#documentWorkspaceContext.getParentUnique() ?? this.#documentWorkspaceContext.getUnique();
+        imageValue = await this.#getValueFromUnique(startUnique, imagePropertyAlias);
         debug['valueFromParentLookup'] = imageValue ? JSON.stringify(imageValue) : null;
       }
     }

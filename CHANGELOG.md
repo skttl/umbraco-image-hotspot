@@ -3,6 +3,23 @@
 All notable changes to Umbraco.Community.ImageHotspot are documented in this file.
 
 
+## [17.0.7] - 2026-06-01
+
+### Added
+
+- Added Playwright E2E test infrastructure with auth setup, test specs, and configuration
+- Added `ImageHotspot.Tests` project to the solution file
+- Added AGENTS.md with testing section, TDD workflow, and contributing guidelines
+
+### Changed
+
+- Replaced `UmbPropertyValueChangeEvent` with `UmbChangeEvent` (from `@umbraco-cms/backoffice/event`) for property value change dispatching
+
+### Fixed
+
+- Fixed null safety in `#onDragEnd` and `#setPosition` by adding optional chaining on `this.value`
+- Fixed parent image lookup starting from `getUnique()` instead of `getParentUnique()`, which caused the current document to be searched twice instead of walking up to the parent
+
 ## [17.0.6] - 2026-05-19
 
 ### Changed

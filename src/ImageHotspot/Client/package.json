@@ -7,11 +7,17 @@
     "build": "vite build --config vite.config.js",
     "watch": "vite build --config vite.config.js --watch",
     "dev": "vite build --config vite.config.js --watch",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "test:e2e": "playwright test --config playwright.config.ts",
+    "test:e2e:ui": "playwright test --config playwright.config.ts --ui",
+    "test:e2e:debug": "playwright test --config playwright.config.ts --debug"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^22.15.29",
+    "@umbraco-cms/acceptance-test-helpers": "^17.3.5",
     "@umbraco-cms/backoffice": "^17.0.0",
+    "dotenv": "^17.4.2",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }
