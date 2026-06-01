@@ -11,5 +11,10 @@
   },
   "include": [
     "src"
+  ],
+  "types": [
+    "@umbraco-cms/backoffice/extension-registry",
+    "@umbraco-cms/backoffice/icon",
+    "@umbraco-cms/backoffice/localization",
   ]
 }

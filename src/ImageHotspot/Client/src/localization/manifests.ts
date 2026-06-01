@@ -1,4 +1,6 @@
-export const manifests: Array<UmbExtensionManifest> = [
+import type { ManifestLocalization } from '@umbraco-cms/backoffice/localization';
+
+export const manifests: Array<ManifestLocalization> = [
   {
     type: 'localization',
     alias: 'ImageHotspot.Localization.En',
