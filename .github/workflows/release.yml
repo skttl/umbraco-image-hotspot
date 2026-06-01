@@ -1,49 +1,142 @@
 name: Release Package
 
-# This action will start when a correctly formatted tag is pushed (e.g. 0.1.0)
-
 on:
   push:
-    tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
 
 jobs:
-  build:
+  release:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Prepare release
+      id: prepare
+      run: |
+        # Determine latest released version from changelog
+        LATEST=$(grep -m1 "^## \[[0-9]" CHANGELOG.md | sed 's/## \[\(.*\)\].*/\1/')
+        MAJOR=$(echo "$LATEST" | cut -d. -f1)
+        MINOR=$(echo "$LATEST" | cut -d. -f2)
+        PATCH=$(echo "$LATEST" | cut -d. -f3)
+        VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+        DATE=$(date +%Y-%m-%d)
+
+        USE_COMMITS=false
+        if grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+          # Check the [Unreleased] section has actual content (non-blank lines)
+          UNRELEASED_CONTENT=$(awk "/^## \[Unreleased\]/{found=1; next} found && /^## \[/{exit} found && /[^[:space:]]/{print}" CHANGELOG.md)
+          if [ -z "$UNRELEASED_CONTENT" ]; then
+            USE_COMMITS=true
+          fi
+        else
+          USE_COMMITS=true
+        fi
+
+        if [ "$USE_COMMITS" = "true" ]; then
+          # Collect commit messages since last release tag that touched src/ImageHotspot/
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" HEAD -- src/ImageHotspot/)
+          else
+            COMMITS=$(git log --pretty=format:"- %s" "${LAST_TAG}..HEAD" -- src/ImageHotspot/)
+          fi
+
+          if [ -z "$COMMITS" ]; then
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          NOTES="### Changes"$'\n'"$COMMITS"
+
+          if grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+            # Replace the empty [Unreleased] section with versioned entry + fresh [Unreleased]
+            sed -i "s/^## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
+            sed -i "s/^## \[$VERSION\]/## [Unreleased]\n\n## [$VERSION]\n\n$NOTES/" CHANGELOG.md
+          else
+            # No [Unreleased] at all — prepend versioned entry + fresh [Unreleased]
+            HEADER="## [Unreleased]"$'\n\n'"## [$VERSION] - $DATE"$'\n\n'"$NOTES"
+            sed -i "0,/^## \[/{s/^## \[/$HEADER\n\n## [/}" CHANGELOG.md
+          fi
+        else
+          # [Unreleased] has content — stamp it with the new version and prepend a fresh [Unreleased]
+          sed -i "s/^## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
+          sed -i "s/^## \[$VERSION\]/## [Unreleased]\n\n## [$VERSION]/" CHANGELOG.md
+
+          # Extract the notes for this version
+          NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+        fi
+
+        echo "should_release=true" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        echo "$NOTES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Commit changelog and create tag
+      if: steps.prepare.outputs.should_release == 'true'
+      run: |
+        VERSION=${{ steps.prepare.outputs.version }}
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add CHANGELOG.md
+        git commit -m "Release $VERSION"
+        git tag "$VERSION"
+        git push origin main --tags
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      if: steps.prepare.outputs.should_release == 'true'
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
 
     - name: Setup Node.js
+      if: steps.prepare.outputs.should_release == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: lts/*
 
     - name: Install client dependencies
+      if: steps.prepare.outputs.should_release == 'true'
       run: npm ci
       working-directory: src/ImageHotspot/Client
 
     - name: Type-check client
+      if: steps.prepare.outputs.should_release == 'true'
       run: npm run check
       working-directory: src/ImageHotspot/Client
 
     - name: Build client
+      if: steps.prepare.outputs.should_release == 'true'
       run: npm run build
       working-directory: src/ImageHotspot/Client
 
     - name: Run C# unit tests
-      run: dotnet test src\ImageHotspot.Tests\ImageHotspot.Tests.csproj -c Release
+      if: steps.prepare.outputs.should_release == 'true'
+      run: dotnet test src/ImageHotspot.Tests/ImageHotspot.Tests.csproj -c Release
 
     - name: Build & Pack
-      run: dotnet pack src\ImageHotspot\ImageHotspot.csproj -c Release /p:Version=${{github.ref_name}}
+      if: steps.prepare.outputs.should_release == 'true'
+      run: dotnet pack src/ImageHotspot/ImageHotspot.csproj -c Release /p:Version=${{ steps.prepare.outputs.version }}
 
     - name: Push to NuGet
-      run: dotnet nuget push **\*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+      if: steps.prepare.outputs.should_release == 'true'
+      run: dotnet nuget push **/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
+    - name: Create GitHub Release
+      if: steps.prepare.outputs.should_release == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.prepare.outputs.version }}
+        name: ${{ steps.prepare.outputs.version }}
+        body: ${{ steps.prepare.outputs.notes }}
+        draft: false
+        prerelease: false
