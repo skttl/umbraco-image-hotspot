@@ -5,6 +5,11 @@ All notable changes to Umbraco.Community.ImageHotspot are documented in this fil
 
 ## [Unreleased]
 
+## [17.0.8-preview001] - 2026-06-02
+
+### Changes
+- fix versions
+
 ## [17.0.7] - 2026-06-01
 
 ### Added
