@@ -84,34 +84,17 @@ jobs:
           NOTES="### Changes"$'\n'"$COMMITS"
 
           if grep -q "^## \[Unreleased\]" CHANGELOG.md; then
-            printf '%s' 'import sys
-v,d,n=sys.argv[1],sys.argv[2],sys.argv[3]
-c=open("CHANGELOG.md").read()
-c=c.replace("## [Unreleased]","## [Unreleased]\n\n## ["+v+"] - "+d+"\n\n"+n,1)
-open("CHANGELOG.md","w").write(c)
-' > /tmp/_cl_patch.py
-            python3 /tmp/_cl_patch.py "$VERSION" "$DATE" "$NOTES"
+            # Replace the empty [Unreleased] section with versioned entry + fresh [Unreleased]
+            _NOTES="$NOTES" python3 -c "import os,sys; v,d,n=sys.argv[1],sys.argv[2],os.environ['_NOTES']; c=open('CHANGELOG.md').read(); c=c.replace('## [Unreleased]','## [Unreleased]\n\n## ['+v+'] - '+d+'\n\n'+n,1); open('CHANGELOG.md','w').write(c)" "$VERSION" "$DATE"
           else
-            printf '%s' 'import sys,re
-v,d,n=sys.argv[1],sys.argv[2],sys.argv[3]
-c=open("CHANGELOG.md").read()
-h="## [Unreleased]\n\n## ["+v+"] - "+d+"\n\n"+n+"\n\n"
-c=re.sub(r"(?=^## \\[)",h,c,count=1,flags=re.MULTILINE)
-open("CHANGELOG.md","w").write(c)
-' > /tmp/_cl_patch.py
-            python3 /tmp/_cl_patch.py "$VERSION" "$DATE" "$NOTES"
+            # No [Unreleased] at all — prepend versioned entry + fresh [Unreleased]
+            _NOTES="$NOTES" python3 -c "import os,sys,re; v,d,n=sys.argv[1],sys.argv[2],os.environ['_NOTES']; c=open('CHANGELOG.md').read(); h='## [Unreleased]\n\n## ['+v+'] - '+d+'\n\n'+n+'\n\n'; c=re.sub(r'(?=^## \\[)',h,c,count=1,flags=re.MULTILINE); open('CHANGELOG.md','w').write(c)" "$VERSION" "$DATE"
           fi
         else
           # [Unreleased] has content — strip bump marker, stamp version, prepend fresh [Unreleased]
           sed -i '/<!-- bump: \(minor\|major\) -->/d' CHANGELOG.md
           sed -i "s/^## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
-          printf '%s' 'import sys
-v=sys.argv[1]
-c=open("CHANGELOG.md").read()
-c=c.replace("## ["+v+"]","## [Unreleased]\n\n## ["+v+"]",1)
-open("CHANGELOG.md","w").write(c)
-' > /tmp/_cl_patch.py
-          python3 /tmp/_cl_patch.py "$VERSION"
+          python3 -c "import sys; v=sys.argv[1]; c=open('CHANGELOG.md').read(); c=c.replace('## ['+v+']','## [Unreleased]\n\n## ['+v+']',1); open('CHANGELOG.md','w').write(c)" "$VERSION"
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
         fi
 

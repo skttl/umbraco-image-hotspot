@@ -77,35 +77,16 @@ jobs:
 
           if grep -q "^## \[Unreleased\]" CHANGELOG.md; then
             # Replace the empty [Unreleased] section with versioned entry + fresh [Unreleased]
-            printf '%s' 'import sys
-v,d,n=sys.argv[1],sys.argv[2],sys.argv[3]
-c=open("CHANGELOG.md").read()
-c=c.replace("## [Unreleased]","## [Unreleased]\n\n## ["+v+"] - "+d+"\n\n"+n,1)
-open("CHANGELOG.md","w").write(c)
-' > /tmp/_cl_patch.py
-            python3 /tmp/_cl_patch.py "$VERSION" "$DATE" "$NOTES"
+            _NOTES="$NOTES" python3 -c "import os,sys; v,d,n=sys.argv[1],sys.argv[2],os.environ['_NOTES']; c=open('CHANGELOG.md').read(); c=c.replace('## [Unreleased]','## [Unreleased]\n\n## ['+v+'] - '+d+'\n\n'+n,1); open('CHANGELOG.md','w').write(c)" "$VERSION" "$DATE"
           else
             # No [Unreleased] at all — prepend versioned entry + fresh [Unreleased]
-            printf '%s' 'import sys,re
-v,d,n=sys.argv[1],sys.argv[2],sys.argv[3]
-c=open("CHANGELOG.md").read()
-h="## [Unreleased]\n\n## ["+v+"] - "+d+"\n\n"+n+"\n\n"
-c=re.sub(r"(?=^## \\[)",h,c,count=1,flags=re.MULTILINE)
-open("CHANGELOG.md","w").write(c)
-' > /tmp/_cl_patch.py
-            python3 /tmp/_cl_patch.py "$VERSION" "$DATE" "$NOTES"
+            _NOTES="$NOTES" python3 -c "import os,sys,re; v,d,n=sys.argv[1],sys.argv[2],os.environ['_NOTES']; c=open('CHANGELOG.md').read(); h='## [Unreleased]\n\n## ['+v+'] - '+d+'\n\n'+n+'\n\n'; c=re.sub(r'(?=^## \\[)',h,c,count=1,flags=re.MULTILINE); open('CHANGELOG.md','w').write(c)" "$VERSION" "$DATE"
           fi
         else
           # [Unreleased] has content — strip bump marker, stamp version, prepend fresh [Unreleased]
           sed -i '/<!-- bump: \(minor\|major\) -->/d' CHANGELOG.md
           sed -i "s/^## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
-          printf '%s' 'import sys
-v=sys.argv[1]
-c=open("CHANGELOG.md").read()
-c=c.replace("## ["+v+"]","## [Unreleased]\n\n## ["+v+"]",1)
-open("CHANGELOG.md","w").write(c)
-' > /tmp/_cl_patch.py
-          python3 /tmp/_cl_patch.py "$VERSION"
+          python3 -c "import sys; v=sys.argv[1]; c=open('CHANGELOG.md').read(); c=c.replace('## ['+v+']','## [Unreleased]\n\n## ['+v+']',1); open('CHANGELOG.md','w').write(c)" "$VERSION"
 
           # Extract the notes for this version
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
@@ -176,3 +157,37 @@ open("CHANGELOG.md","w").write(c)
         body: ${{ steps.prepare.outputs.notes }}
         draft: false
         prerelease: false
+
+  sync-branches:
+    needs: release
+    if: needs.release.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Sync develop and reset preview
+      run: |
+        BRANCH="${GITHUB_REF#refs/heads/}"
+        MAJOR=$(echo "$BRANCH" | sed -n 's|^v\([0-9]\+\)/main$|\1|p')
+        DEVELOP="v${MAJOR}/develop"
+        PREVIEW="v${MAJOR}/preview"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Merge main → develop
+        git fetch origin
+        git checkout "$DEVELOP"
+        git merge --ff-only "origin/${BRANCH}" || git merge -X theirs "origin/${BRANCH}" -m "chore: sync CHANGELOG from ${BRANCH}"
+        git push origin "$DEVELOP"
+
+        # Reset preview to develop
+        git checkout "$PREVIEW"
+        git reset --hard "$DEVELOP"
+        git push --force-with-lease origin "$PREVIEW"
