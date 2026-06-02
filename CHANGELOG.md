@@ -5,6 +5,8 @@ All notable changes to Umbraco.Community.ImageHotspot are documented in this fil
 
 ## [Unreleased]
 
+## [17.0.8] - 2026-06-02
+
 ### Fixed
 - Fixed Umbraco dependencies to use version 17.0.0 (a947f6a)
 
