@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 export const STORAGE_STATE = join(__dirname, 'tests/e2e/.auth/user.json');
 
-process.env.STORAGE_STAGE_PATH = STORAGE_STATE;
+process.env.STORAGE_STATE_PATH = STORAGE_STATE;
 
 // @umbraco-cms/acceptance-test-helpers reads process.env.URL (not UMBRACO_URL) for its base URL
 process.env.URL = process.env.UMBRACO_URL ?? 'http://localhost:5219';
