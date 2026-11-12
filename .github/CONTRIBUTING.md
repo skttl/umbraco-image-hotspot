@@ -12,3 +12,10 @@ Setup creates its own media, data types and documents through the Management API
 it does not need old uSync content. Fixtures use dedicated E2E identifiers and remain
 in the test site between runs. Never point these tests at a production site.
 Keep credentials in environment variables or user secrets, not tracked files.
+
+Releases use new tags such as `v18.0.0`. The tag commit must be an ancestor of
+`origin/v18/main`; the workflow builds and packs the version from the tag.
+`publish.yml` uses NuGet trusted publishing with the `release` environment and
+its `NUGET_USER` secret. The NuGet policy must match repository owner `skttl`,
+repository `umbraco-image-hotspot`, workflow filename `publish.yml` and environment
+`release`. No permanent API key is needed by this branch's publishing workflow.

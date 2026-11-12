@@ -2,7 +2,7 @@
 
 [![Downloads](https://img.shields.io/nuget/dt/Umbraco.Community.ImageHotspot?color=cc9900)](https://www.nuget.org/packages/Umbraco.Community.ImageHotspot/)
 [![NuGet](https://img.shields.io/nuget/vpre/Umbraco.Community.ImageHotspot?color=0273B3)](https://www.nuget.org/packages/Umbraco.Community.ImageHotspot)
-[![GitHub license](https://img.shields.io/github/license/skttl/umbraco-image-hotspot?color=8AB803)](../LICENSE)
+[![GitHub license](https://img.shields.io/github/license/skttl/umbraco-image-hotspot?color=8AB803)](https://github.com/skttl/umbraco-image-hotspot/blob/v18/main/LICENSE)
 
 An Umbraco property editor that allows an editor to place a hotspot on an image.
 
@@ -12,7 +12,7 @@ It's a property editor that displays an image and lets the editor place a hotspo
 
 ## Installation
 
-Add the package to an existing Umbraco website (v15+) from NuGet:
+Add the package to an existing Umbraco website (v18) from NuGet:
 
 ```
 dotnet add package Umbraco.Community.ImageHotspot

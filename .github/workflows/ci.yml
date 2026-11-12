@@ -1,0 +1,39 @@
+name: CI
+on:
+  pull_request:
+    branches: [v18/main]
+  push:
+    branches: [v18/main, codex/release-v18]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: src/ImageHotspot/Client/package-lock.json
+      - run: npm ci
+        working-directory: src/ImageHotspot/Client
+      - run: npm run check && npm run build
+        working-directory: src/ImageHotspot/Client
+      - run: node --test scripts/release-version.test.mjs
+      - run: dotnet restore src/ImageHotspot.TestSite/ImageHotspot.TestSite.csproj
+      - run: dotnet build src/ImageHotspot.TestSite/ImageHotspot.TestSite.csproj -c Release --no-restore
+      - run: dotnet test src/ImageHotspot.Tests/ImageHotspot.Tests.csproj -c Release
+      - run: npx playwright install --with-deps chromium
+        working-directory: src/ImageHotspot/Client
+      - run: dotnet dev-certs https
+      - shell: pwsh
+        run: ./scripts/test-e2e.ps1
+      - run: dotnet pack src/ImageHotspot/ImageHotspot.csproj -c Release --no-build -o artifacts
+      - shell: pwsh
+        run: ./scripts/verify-package.ps1 -PackagePath artifacts/Umbraco.Community.ImageHotspot.18.0.0.nupkg
+      - shell: pwsh
+        run: ./scripts/verify-package.test.ps1 -PackagePath artifacts/Umbraco.Community.ImageHotspot.18.0.0.nupkg
