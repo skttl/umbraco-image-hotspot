@@ -1,10 +1,12 @@
 import { expect } from '@playwright/test';
-import { ConstantHelper, test } from '@umbraco-cms/acceptance-test-helpers';
+import { ConstantHelper } from '@umbraco-cms/acceptance-test-helpers';
+import { fixture, initialHotspot, resetDocument, test } from './fixtures.js';
 
-const CONTENT_NAME = 'Test';
+const CONTENT_NAME = 'ImageHotspot E2E single';
 
 test.describe('Image Hotspot editor', () => {
-  test.beforeEach(async ({ umbracoUi }) => {
+  test.beforeEach(async ({ umbracoUi, umbracoApi }) => {
+    await resetDocument(umbracoApi, fixture.single);
     await umbracoUi.goToBackOffice();
     await umbracoUi.content.goToSection(ConstantHelper.sections.content);
     await umbracoUi.content.goToContentWithName(CONTENT_NAME);
@@ -30,8 +32,8 @@ test.describe('Image Hotspot editor', () => {
     await expect(hotspot).toBeVisible({ timeout: 15_000 });
 
     const style = await hotspot.getAttribute('style');
-    expect(style).toMatch(/left:\s*[\d.]+%/);
-    expect(style).toMatch(/top:\s*[\d.]+%/);
+    expect(style).toContain(`left:${initialHotspot.percentX.toFixed(4)}%`);
+    expect(style).toContain(`top:${initialHotspot.percentY.toFixed(4)}%`);
   });
 
   test('clicking the image updates the hotspot position', async ({ umbracoUi }) => {
@@ -87,12 +89,21 @@ test.describe('Image Hotspot editor', () => {
     await expect(saveButton).toBeEnabled({ timeout: 5_000 });
   });
 
+  test('dragging the marker updates the hotspot coordinates', async ({ page }) => {
+    const marker = page.locator('image-hotspot #imagehotspot-hotspot');
+    await expect(marker).toBeVisible();
+    const original = await marker.getAttribute('style');
+    await marker.dragTo(page.locator('image-hotspot .imagehotspot-image'), { targetPosition: { x: 300, y: 60 } });
+    await expect(marker).not.toHaveAttribute('style', original!);
+    await expect(page.getByRole('button', { name: /^save$/i }).first()).toBeEnabled();
+  });
+
   test('image has correct dimensions attribute matching configured width', async ({ umbracoUi }) => {
     const img = umbracoUi.page.locator('image-hotspot .imagehotspot-image img');
     await expect(img).toBeVisible({ timeout: 15_000 });
 
     const width = await img.getAttribute('width');
-    expect(Number(width)).toBeGreaterThan(0);
+    expect(Number(width)).toBe(400);
   });
 
   test('applies theme class to editor container', async ({ umbracoUi }) => {
@@ -100,30 +111,53 @@ test.describe('Image Hotspot editor', () => {
     await expect(container).toBeVisible({ timeout: 15_000 });
 
     const classAttr = await container.getAttribute('class');
-    expect(classAttr).toMatch(/theme\d/);
+    expect(classAttr).toContain('theme1');
   });
 
-  test('resolves image from parent when creating a new child node', async ({ umbracoUi, page }) => {
-    // Open the actions menu on the "Test" tree item and click Create.
-    await umbracoUi.content.clickActionsMenuForContent(CONTENT_NAME);
-    await umbracoUi.content.clickCreateActionMenuOption();
-
-    // Umbraco may show a document-type picker modal if there are multiple options,
-    // or navigate directly if there is only one allowed child type.
-    const createOptionsModal = page.locator('umb-entity-create-option-action-list-modal');
-    const modalVisible = await createOptionsModal.isVisible({ timeout: 3_000 }).catch(() => false);
-    if (modalVisible) {
-      await page.locator('umb-entity-create-option-action-list-modal umb-ref-item', { hasText: 'Child' }).click();
-    }
-
-    // The image-hotspot editor should resolve the image from the parent node.
-    // It must show the image editor (not the warning/fallback box), which proves
-    // getParentUnique() was used instead of the unsaved new document's temp key.
+  test('resolves image from parent when creating a new child node', async ({ page }) => {
+    await page.goto(`/umbraco/section/content/workspace/document/create/parent/document/${fixture.single}/${fixture.childType}`);
+    await expect(page).toHaveURL(/\/workspace\/document\/create\/parent\//);
+    // The new document has no saved key; its workspace parent must supply the image.
     const imageEditor = page.locator('image-hotspot .imagehotspot-editor');
     await expect(imageEditor).toBeVisible({ timeout: 20_000 });
 
     // Also confirm no warning box is shown (which would indicate image resolution failed)
     const warningBox = page.locator('image-hotspot .imagehotspot-warning');
     await expect(warningBox).not.toBeVisible();
+  });
+
+  test('resolves a saved child image from its parent', async ({ page, umbracoUi }) => {
+    await page.goto(`/umbraco/section/content/workspace/document/edit/${fixture.inherited}`);
+    await expect(umbracoUi.page.locator('image-hotspot .imagehotspot-editor')).toBeVisible();
+    await expect(umbracoUi.page.locator('image-hotspot img')).toHaveJSProperty('naturalWidth', 400);
+  });
+
+  test('resolves the first image from a multiple media picker', async ({ page }) => {
+    await page.goto(`/umbraco/section/content/workspace/document/edit/${fixture.multiple}`);
+    await expect(page.locator('image-hotspot .imagehotspot-editor')).toBeVisible();
+    await expect(page.locator('image-hotspot img')).toHaveJSProperty('naturalWidth', 400);
+  });
+
+  test('save and reload preserves the clicked hotspot coordinates', async ({ page, umbracoUi, umbracoApi }) => {
+    const image = page.locator('image-hotspot .imagehotspot-image');
+    await expect(image).toBeVisible();
+    await image.click({ position: { x: 80, y: 40 } });
+    await umbracoUi.content.clickSaveButtonAndWaitForContentToBeUpdated();
+    const saved = await umbracoApi.document.get(fixture.single);
+    const value = saved.values.find((entry: { alias: string }) => entry.alias === 'hotspot').value;
+    expect(value.percentX).toBeCloseTo(20, 1);
+    expect(value.percentY).toBeCloseTo(20, 1);
+    await page.reload();
+    const hotspot = page.locator('image-hotspot #imagehotspot-hotspot');
+    await expect(hotspot).toBeVisible();
+    await expect(hotspot).toHaveAttribute('style', /left:20\.0000%;top:20\.0000%;/);
+  });
+
+  test('missing image shows a warning without changing saved coordinates', async ({ page, umbracoApi }) => {
+    await page.goto(`/umbraco/section/content/workspace/document/edit/${fixture.missing}`);
+    await expect(page.locator('image-hotspot .imagehotspot-warning')).toBeVisible();
+    await expect(page.locator('image-hotspot .stored-value-hint')).toContainText('55.75');
+    const saved = await umbracoApi.document.get(fixture.missing);
+    expect(saved.values.find((entry: { alias: string }) => entry.alias === 'hotspot').value).toEqual(initialHotspot);
   });
 });

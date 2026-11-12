@@ -60,6 +60,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
   #propertyDatasetContext?: typeof UMB_PROPERTY_DATASET_CONTEXT.TYPE;
   #parentPropertyDatasetContext?: typeof UMB_PROPERTY_DATASET_CONTEXT.TYPE;
   #documentWorkspaceContext?: UmbDocumentWorkspaceContext;
+  #parentDocumentUnique?: UmbEntityUnique;
   #documentDetailRepository = new UmbDocumentDetailRepository(this);
   #documentItemRepository = new UmbDocumentItemRepository(this);
   #mediaDetailRepository = new UmbMediaDetailRepository(this);
@@ -79,6 +80,11 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
     }).passContextAliasMatches();
     this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
       this.#documentWorkspaceContext = context;
+      // shortcut: unsaved parents require Umbraco's internal observable; replace when a public API is available.
+      this.observe(context?._internal_createUnderParent, (parent) => {
+        this.#parentDocumentUnique = parent?.entityType === 'document' ? parent.unique : undefined;
+        this.#observeImageProperty();
+      }, 'createParentObserver');
       this.#observeImageProperty();
     }).passContextAliasMatches();
   }
@@ -237,7 +243,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
       debug['valueFromWorkspaceContext'] = imageValue ? JSON.stringify(imageValue) : null;
 
       if (!imageValue) {
-        const startUnique = await this.#getParentFromUnique(this.#documentWorkspaceContext.getUnique());
+        const startUnique = this.#parentDocumentUnique ?? await this.#getParentFromUnique(this.#documentWorkspaceContext.getUnique());
         imageValue = await this.#getValueFromUnique(startUnique, imagePropertyAlias);
         debug['valueFromParentLookup'] = imageValue ? JSON.stringify(imageValue) : null;
       }

@@ -1,14 +1,15 @@
 import { test as setup } from '@playwright/test';
 import { STORAGE_STATE } from '../../playwright.config.js';
-import { ConstantHelper, UiHelpers } from '@umbraco-cms/acceptance-test-helpers';
+import { authenticatedApi, createFixtures } from './fixtures.js';
 
-setup('authenticate', async ({ page }) => {
-  const umbracoUi = new UiHelpers(page);
-
-  await umbracoUi.goToBackOffice();
-  await umbracoUi.login.enterEmail(process.env.UMBRACO_USER_LOGIN ?? 'admin@example.com');
-  await umbracoUi.login.enterPassword(process.env.UMBRACO_USER_PASSWORD ?? '1234567890');
-  await umbracoUi.login.clickLoginButton();
-  await umbracoUi.content.goToSection(ConstantHelper.sections.content);
+setup('authenticate and prepare fixtures', async ({ page }) => {
+  setup.setTimeout(90_000);
+  const login = process.env.UMBRACO_USER_LOGIN;
+  const password = process.env.UMBRACO_USER_PASSWORD;
+  if (!login || !password) {
+    throw new Error('Set UMBRACO_USER_LOGIN and UMBRACO_USER_PASSWORD for the local demo admin.');
+  }
+  const api = await authenticatedApi(page, true);
+  await createFixtures(api);
   await page.context().storageState({ path: STORAGE_STATE });
 });

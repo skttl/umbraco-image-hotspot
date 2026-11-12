@@ -7,10 +7,10 @@ const __dirname = dirname(__filename);
 
 export const STORAGE_STATE = join(__dirname, 'tests/e2e/.auth/user.json');
 
-process.env.STORAGE_STAGE_PATH = STORAGE_STATE;
+process.env.STORAGE_STATE_PATH = STORAGE_STATE;
 
 // @umbraco-cms/acceptance-test-helpers reads process.env.URL (not UMBRACO_URL) for its base URL
-process.env.URL = process.env.UMBRACO_URL ?? 'https://localhost:44342';
+process.env.URL = process.env.UMBRACO_URL ?? 'https://localhost:5218';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -20,9 +20,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: process.env.CI ? 'line' : 'html',
+  reporter: [['line'], ['junit', { outputFile: 'test-results/e2e.xml' }]],
   use: {
-    baseURL: process.env.UMBRACO_URL ?? 'https://localhost:44342',
+    baseURL: process.env.URL,
     trace: 'retain-on-failure',
     ignoreHTTPSErrors: true,
     testIdAttribute: 'data-mark',
