@@ -1,6 +1,6 @@
 # Image Hotspot Editor
 
-A property editor for **Umbraco v15+** that lets content editors place a single hotspot on an image. The hotspot position is stored as percentage values, and ships with a strongly-typed C# value object that renders a ready-made CSS snippet.
+A property editor for **Umbraco v19** that lets content editors place a single hotspot on an image. The hotspot position is stored as percentage values, and ships with a strongly-typed C# value object that renders a ready-made CSS snippet.
 
 This package provides the same functionality that was previously available via [Vokseverk.ImageHotspot](https://marketplace.umbraco.com/package/vokseverk.imagehotspot) in Umbraco 7–13.
 
@@ -71,3 +71,6 @@ public class ImageHotspotValue
 Source code and issue tracker: [github.com/skttl/umbraco-image-hotspot](https://github.com/skttl/umbraco-image-hotspot)
 
 Contributions are welcome — see the [Contributing Guidelines](https://github.com/skttl/umbraco-image-hotspot/blob/main/.github/CONTRIBUTING.md).
+
+
+[Installation, configuration and usage](https://github.com/skttl/umbraco-image-hotspot/blob/main/docs/nuget-readme.md). Version 19 targets Umbraco 19 RC and .NET 11; choose the matching package major for earlier CMS versions.

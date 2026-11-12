@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>ImageHotspot</AssemblyName>
+    <RootNamespace>ImageHotspot</RootNamespace>
+    <StaticWebAssetBasePath>App_Plugins/ImageHotspot</StaticWebAssetBasePath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Version>19.0.0-rc1</Version>
+    <PackageId>Umbraco.Community.ImageHotspot</PackageId>
+    <Product>Umbraco.Community.ImageHotspot</Product>
+    <Title>Umbraco Image Hotspot</Title>
+    <Authors>Søren Kottal</Authors>
+    <Copyright>Søren Kottal</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/skttl/umbraco-image-hotspot</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/skttl/umbraco-image-hotspot</RepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>umbraco umbraco-marketplace</PackageTags>
+    <Description>A property editor for Umbraco 19 that lets content editors place a single hotspot on an image. The hotspot position is stored as percentage coordinates and ships with a strongly-typed C# value object that renders a ready-made CSS snippet.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Core" Version="[19.0.0-rc1,20.0.0)" />
+    <None Include="../../icon.png" Pack="true" PackagePath="/" />
+    <None Include="../../docs/nuget-readme.md" Pack="true" PackagePath="README.md" />
+    <Content Remove="Client/**" />
+    <None Remove="Client/**" />
+  </ItemGroup>
+  <Target Name="RestoreClient" Inputs="Client/package.json;Client/package-lock.json" Outputs="Client/node_modules/.package-lock.json">
+    <Exec Command="npm ci" WorkingDirectory="Client" />
+  </Target>
+  <Target Name="BuildClient" BeforeTargets="AssignTargetPaths" DependsOnTargets="RestoreClient">
+    <Exec Command="npm run build" WorkingDirectory="Client" EnvironmentVariables="PACKAGE_VERSION=$(Version)" />
+    <ItemGroup>
+      <Content Include="wwwroot/**" Exclude="@(Content)" />
+    </ItemGroup>
+  </Target>
+</Project>

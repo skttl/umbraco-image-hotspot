@@ -1,0 +1,13 @@
+{
+  "name": "Umbraco.Community.ImageHotspot",
+  "version": "19.0.0-rc1",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "type": "bundle",
+      "alias": "Umbraco.Community.ImageHotSpot",
+      "name": "Image Hotspot",
+      "js": "/App_Plugins/ImageHotspot/entrypoint.js"
+    }
+  ]
+}

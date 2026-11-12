@@ -361,3 +361,18 @@ src/ImageHotspot/Client/tests/e2e/.auth/
 src/ImageHotspot/Client/playwright-report/
 src/ImageHotspot/Client/test-results/
 src/ImageHotspot/Client/.env
+
+# Generated assets, demo state and local tooling
+.dotnet/
+.cache/
+**/Client/node_modules/
+**/Client/test-results/
+**/Client/playwright-report/
+**/Client/tests/e2e/.auth/
+src/Umbraco.Community.ImageHotspot/wwwroot/
+demo/**/umbraco/Data/
+demo/**/umbraco/Logs/
+demo/**/wwwroot/media/
+**/appsettings.Local.json
+**/.env
+**/.env.*

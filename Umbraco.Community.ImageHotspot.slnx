@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Umbraco.Community.ImageHotspot/Umbraco.Community.ImageHotspot.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Umbraco.Community.ImageHotspot.Tests/Umbraco.Community.ImageHotspot.Tests.csproj" />
+  </Folder>
+  <Folder Name="/demo/">
+    <Project Path="demo/Umbraco.Community.ImageHotspot.TestSite/Umbraco.Community.ImageHotspot.TestSite.csproj" />
+  </Folder>
+</Solution>
