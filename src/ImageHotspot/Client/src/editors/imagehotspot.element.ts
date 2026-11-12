@@ -237,7 +237,7 @@ export class ImageHotspot extends UmbLitElement implements UmbPropertyEditorUiEl
       debug['valueFromWorkspaceContext'] = imageValue ? JSON.stringify(imageValue) : null;
 
       if (!imageValue) {
-        const startUnique = this.#documentWorkspaceContext.getParentUnique() ?? this.#documentWorkspaceContext.getUnique();
+        const startUnique = await this.#getParentFromUnique(this.#documentWorkspaceContext.getUnique());
         imageValue = await this.#getValueFromUnique(startUnique, imagePropertyAlias);
         debug['valueFromParentLookup'] = imageValue ? JSON.stringify(imageValue) : null;
       }

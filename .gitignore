@@ -361,3 +361,7 @@ src/ImageHotspot/Client/tests/e2e/.auth/
 src/ImageHotspot/Client/playwright-report/
 src/ImageHotspot/Client/test-results/
 src/ImageHotspot/Client/.env
+
+# Local tooling
+.dotnet/
+.cache/
